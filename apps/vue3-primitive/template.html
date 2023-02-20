@@ -1,0 +1,90 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>模板语法</title>
+
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      h2 {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .item {
+        border: 1px solid black;
+        border-style: dashed;
+        padding: 12px;
+        margin-bottom: 20px;
+      }
+      #blueText {
+        color: blue;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="item">
+        <h2>文本插值</h2>
+        <p>
+          <span>{{msg}}</span>
+        </p>
+      </div>
+      <div class="item">
+        <h2>v-html</h2>
+        <div v-html="rawHtml"></div>
+      </div>
+      <div class="item">
+        <h2>属性绑定</h2>
+        <span :id="blueClass">属性绑定：蓝色文本</span>
+      </div>
+      <div class="item">
+        <h2>条件渲染</h2>
+      </div>
+      <div class="item">
+        <h2>循环渲染</h2>
+        <div>
+          <u v-for="item in tasks">
+            <li>{{item.text}}</li>
+          </u>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import { createApp,reactive  } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+    const book = reactive({ title: 'Vue 3 指引' });
+    console.log(book);
+
+    createApp({
+      data() {
+        return {
+          msg: "这是一个文本插值",
+          rawHtml: "<div>原始 HTML</div>",
+          blueClass: "blueText",
+          tasks:[{
+            key:1,
+            text:'学习vue.js'
+          },{
+            key:2,
+            text:'学习pinia'
+          },{
+            key:3,
+            text:'学习vue-router'
+          }]
+        };
+      },
+    }).mount("#app");
+  </script>
+</html>
