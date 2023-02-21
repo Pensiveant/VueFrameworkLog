@@ -1,0 +1,54 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>源码学习</title>
+
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">{{ message }}</div>
+  </body>
+  <!-- <script type="module">
+    import {
+      reactive,
+      createApp,
+    } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js";
+
+    const data = reactive({
+      name: "pensiveant",
+      age: 20,
+      skill: { name: "vue" },
+    });
+    console.log(data);
+    createApp({
+      data() {
+        return {
+          message: "源码学习",
+        };
+      },
+    }).mount("#app");
+  </script> -->
+  <script type="module">
+    import { reactive } from "./vue/reactivity/index.js";
+    const data = reactive({
+      name: "pensiveant",
+      age: 20,
+      skill: { name: "vue" },
+    });
+    window.data=data;
+    console.log(data);
+  </script>
+</html>
