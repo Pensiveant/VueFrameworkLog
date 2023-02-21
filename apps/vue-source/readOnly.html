@@ -5,7 +5,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>源码学习</title>
+    <title>源码学习-响应式</title>
 
     <style>
       html,
@@ -42,9 +42,8 @@
     }).mount("#app");
   </script> -->
   <script type="module">
-    import { reactive, ref } from "./vue/reactivity/index.js";
-    // const data = reactive(new Map([["count", ref(0)]]));
-    const data = reactive({
+    import { readonly } from "./vue/reactivity/index.js";
+    const data = readonly({
       name: "pensiveant",
       age: 20,
       skill: { name: "vue" },
