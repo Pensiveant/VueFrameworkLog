@@ -1,4 +1,6 @@
 import { createDep, newTracked, wasTracked } from "./dep.js";
+import { recordEffectScope } from "./effectScope.js";
+import { finalizeDepMarkers, initDepMarkers } from "./dep.js";
 
 const __DEV__ = false;
 let effectTrackDepth = 0; // 跟踪的深度
@@ -161,4 +163,107 @@ export function trigger(target, type, key, newValue, oldValue, oldTarget) {
       triggerEffects(createDep(effects));
     }
   }
+}
+
+export class ReactiveEffect {
+  active = true;
+  deps = [];
+  parent = undefined;
+
+  /**
+   * Can be attached after creation
+   * @internal
+   */
+  computed;
+  /**
+   * @internal
+   */
+  allowRecurse;
+  /**
+   * @internal
+   */
+  deferStop;
+
+  onStop() {}
+  // dev only
+  onTrack(event) {}
+  // dev only
+  onTrigger(event) {}
+
+  constructor(fn, scheduler = null, scope) {
+    recordEffectScope(this, scope);
+  }
+
+  run() {
+    if (!this.active) {
+      return this.fn();
+    }
+    let parent = activeEffect;
+    let lastShouldTrack = shouldTrack;
+    while (parent) {
+      if (parent === this) {
+        return;
+      }
+      parent = parent.parent;
+    }
+    try {
+      this.parent = activeEffect;
+      activeEffect = this;
+      shouldTrack = true;
+
+      trackOpBit = 1 << ++effectTrackDepth;
+
+      if (effectTrackDepth <= maxMarkerBits) {
+        initDepMarkers(this);
+      } else {
+        cleanupEffect(this);
+      }
+      return this.fn();
+    } finally {
+      if (effectTrackDepth <= maxMarkerBits) {
+        finalizeDepMarkers(this);
+      }
+
+      trackOpBit = 1 << --effectTrackDepth;
+
+      activeEffect = this.parent;
+      shouldTrack = lastShouldTrack;
+      this.parent = undefined;
+
+      if (this.deferStop) {
+        this.stop();
+      }
+    }
+  }
+
+  stop() {
+    // stopped while running itself - defer the cleanup
+    if (activeEffect === this) {
+      this.deferStop = true;
+    } else if (this.active) {
+      cleanupEffect(this);
+      if (this.onStop) {
+        this.onStop();
+      }
+      this.active = false;
+    }
+  }
+}
+
+export function effect(fn, options) {
+  if (fn.effect) {
+    fn = fn.effect.fn;
+  }
+
+  const _effect = new ReactiveEffect(fn);
+  if (options) {
+    extend(_effect, options);
+    if (options.scope) recordEffectScope(_effect, options.scope);
+  }
+  if (!options || !options.lazy) {
+    _effect.run();
+  }
+  const runner = _effect.run.bind(_effect);
+  runner.effect = _effect;
+  return runner;
 }

@@ -14,8 +14,8 @@ export const toRawType = (value) => {
   return toTypeString(value).slice(8, -1);
 };
 
-export { reactive, readonly, shallowReactive, shallowReadonly };
+export { ref } from "./ref.js";
 
-export {
-  ref
-} from './ref.js'
+import { effect } from "./effect.js";
+
+export { reactive, readonly, shallowReactive, shallowReadonly, effect };
